@@ -14,13 +14,46 @@
 
 const { Observable } = require('rxjs');
 
+// function interval(letter, delay) {
+//     return new Observable((observer) => {
+//         let count = 0;
+//         let _interval = setInterval(() => {
+//             observer.next(letter);
+//             if (++count >= 3) {
+//                 observer.complete();
+//                 clearInterval(_interval);
+//             }
+//         }, delay);
+//     });
+// }
+
 function interval(letter, delay) {
     return new Observable((observer) => {
-        setInterval(() => {
+        const _interval = setInterval(() => {
             observer.next(letter);
         }, delay);
+
+        return () => {
+            observer.complete();
+            clearInterval(_interval);
+        }
     });
 }
 
-interval('A', 500)
-    .subscribe((letter) => console.log(letter));
+const sub = interval('A', 1000)
+    .subscribe({
+        next(letter) {
+            console.log(letter);
+        },
+        error(err) {
+            console.log(err);
+        },
+        complete() {
+            console.log('completed');
+        }
+    });
+
+
+    setTimeout(() => {
+        sub.unsubscribe();
+    }, 4500);
